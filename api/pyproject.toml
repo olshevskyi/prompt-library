@@ -8,3 +8,10 @@ dependencies = [
     "fastapi[standard]>=0.162.0",
     "sqlalchemy>=2.1.8",
 ]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+]
+[tool.pytest.ini_options]
+pythonpath = ["."]
