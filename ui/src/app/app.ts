@@ -1,8 +1,9 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, JsonPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
+import { ApiLog } from './core/api-log';
 import { PromptApiService } from './core/prompt-api.service';
 import { Prompt, PromptCreate, PromptFilters } from './core/prompt.model';
 
@@ -10,13 +11,14 @@ type FavoriteFilter = 'all' | 'yes' | 'no';
 
 @Component({
   selector: 'app-root',
-  imports: [ReactiveFormsModule, DatePipe],
+  imports: [ReactiveFormsModule, DatePipe, JsonPipe],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
 export class App implements OnInit {
   private readonly api = inject(PromptApiService);
   private readonly fb = inject(FormBuilder);
+  protected readonly log = inject(ApiLog);
 
   protected readonly prompts = signal<Prompt[]>([]);
   protected readonly loading = signal(false);
@@ -34,6 +36,7 @@ export class App implements OnInit {
   protected readonly editing = signal<'new' | number | null>(null);
   protected readonly saving = signal(false);
   protected readonly formErrors = signal<string[]>([]);
+  protected readonly openLogId = signal<number | null>(null);
 
   protected readonly form = this.fb.nonNullable.group({
     title: ['', [Validators.required, Validators.maxLength(200)]],
@@ -152,6 +155,16 @@ export class App implements OnInit {
       next: () => this.load(),
       error: (err: HttpErrorResponse) => this.listError.set(this.describe(err).join(' ')),
     });
+  }
+
+  protected toggleLog(id: number): void {
+    this.openLogId.update((current) => (current === id ? null : id));
+  }
+
+  protected statusClass(status: number): string {
+    if (status >= 200 && status < 300) return 'ok';
+    if (status >= 400 && status < 500) return 'warn';
+    return 'bad';
   }
 
   /** Turns FastAPI errors into readable lines (422 detail is a list, 404 detail is a string) */

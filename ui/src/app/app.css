@@ -15,7 +15,7 @@
 
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) 360px;
   gap: 24px;
   padding: 24px;
   max-width: 1280px;
@@ -135,6 +135,50 @@
   border-radius: 14px;
 }
 
+.log { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; align-self: start; position: sticky; top: 24px; max-height: calc(100vh - 48px); overflow: auto; }
+.log-head { display: flex; justify-content: space-between; align-items: center; }
+.log-head h2 { font-size: 15px; }
+.log-list { list-style: none; margin: 8px 0 0; padding: 0; }
+.log-list li { border-top: 1px solid var(--border); }
+
+.log-row {
+  display: grid;
+  grid-template-columns: 56px 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  border: none;
+  background: none;
+  color: var(--text);
+  font: 12px ui-monospace, Menlo, monospace;
+  padding: 8px 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.url { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ms { color: var(--muted); }
+.method { font-weight: 600; }
+.m-GET { color: var(--ok); }
+.m-POST { color: var(--primary); }
+.m-PATCH { color: var(--warn); }
+.m-DELETE { color: var(--bad); }
+.status.ok { color: var(--ok); }
+.status.warn { color: var(--warn); }
+.status.bad { color: var(--bad); }
+
+.log-detail h3 { font-size: 11px; color: var(--muted); margin: 4px 0; text-transform: uppercase; }
+
+.log-detail pre {
+  background: var(--code-bg);
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 11px;
+  overflow: auto;
+  max-height: 220px;
+  margin: 0 0 8px;
+}
+
 .backdrop { position: fixed; inset: 0; background: rgb(0 0 0 / 0.35); }
 
 .drawer {
@@ -158,5 +202,6 @@
 
 @media (max-width: 900px) {
   .layout { grid-template-columns: 1fr; padding: 16px; }
+  .log { position: static; max-height: none; }
   .topbar { padding: 16px; }
 }

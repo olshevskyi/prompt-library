@@ -100,6 +100,39 @@
     }
   </main>
 
+  <aside class="log" aria-label="API requests">
+    <div class="log-head">
+      <h2>API requests</h2>
+      @if (log.entries().length) {
+        <button class="btn ghost small" type="button" (click)="log.clear()">Clear</button>
+      }
+    </div>
+    <p class="muted small">Every call the UI makes to FastAPI. Click a row to see the JSON.</p>
+    <ul class="log-list">
+      @for (entry of log.entries(); track entry.id) {
+        <li>
+          <button class="log-row" type="button" (click)="toggleLog(entry.id)">
+            <span class="method m-{{ entry.method }}">{{ entry.method }}</span>
+            <span class="url">{{ entry.url }}</span>
+            <span class="status {{ statusClass(entry.status) }}">{{ entry.status }}</span>
+            <span class="ms">{{ entry.ms }}ms</span>
+          </button>
+          @if (openLogId() === entry.id) {
+            <div class="log-detail">
+              @if (entry.requestBody) {
+                <h3>Request body</h3>
+                <pre>{{ entry.requestBody | json }}</pre>
+              }
+              <h3>Response</h3>
+              <pre>{{ entry.responseBody === null ? '(empty)' : (entry.responseBody | json) }}</pre>
+            </div>
+          }
+        </li>
+      } @empty {
+        <li class="muted small">No requests yet.</li>
+      }
+    </ul>
+  </aside>
 </div>
 
 @if (editing() !== null) {
