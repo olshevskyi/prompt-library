@@ -1,1 +1,152 @@
-<h1>Prompt Library</h1>
+<header class="topbar">
+  <div>
+    <h1>Prompt Library</h1>
+    <p class="subtitle">Angular UI on top of the FastAPI <code>prompt_api</code></p>
+  </div>
+  <div class="topbar-actions">
+    <a class="btn ghost" href="http://127.0.0.1:8000/docs" target="_blank" rel="noopener">OpenAPI /docs</a>
+  </div>
+</header>
+
+<div class="layout">
+  <main class="content">
+    <section class="filters" aria-label="Filters">
+      <label>
+        <span>Category</span>
+        <input
+          type="text"
+          placeholder="e.g. dev"
+          [value]="category()"
+          (change)="setCategory($any($event.target).value)"
+        />
+      </label>
+      <label>
+        <span>Favorite</span>
+        <select [value]="favorite()" (change)="setFavorite($any($event.target).value)">
+          <option value="all">All</option>
+          <option value="yes">Only favorites</option>
+          <option value="no">Not favorites</option>
+        </select>
+      </label>
+      <label>
+        <span>Tag</span>
+        <input
+          type="text"
+          placeholder="e.g. python"
+          [value]="tag()"
+          (change)="setTag($any($event.target).value)"
+        />
+      </label>
+      @if (hasFilters()) {
+        <button class="btn ghost small" type="button" (click)="resetFilters()">Reset</button>
+      }
+    </section>
+
+    @if (listError(); as error) {
+      <div class="alert">{{ error }}</div>
+    }
+
+    @if (loading() && prompts().length === 0) {
+      <p class="muted">Loading…</p>
+    } @else {
+      <p class="muted count">{{ prompts().length }} prompt{{ prompts().length === 1 ? '' : 's' }}</p>
+      <ul class="cards">
+        <li>
+          <button class="card new-card" type="button" (click)="openNew()">
+            <span class="plus" aria-hidden="true">+</span>
+            <span>New prompt</span>
+          </button>
+        </li>
+        @for (prompt of prompts(); track prompt.id) {
+          <li class="card">
+            <div class="card-top">
+              <button class="chip category" type="button" (click)="setCategory(prompt.category)">
+                {{ prompt.category }}
+              </button>
+              <button
+                class="star"
+                type="button"
+                [class.on]="prompt.is_favorite"
+                [attr.aria-label]="prompt.is_favorite ? 'Remove from favorites' : 'Add to favorites'"
+                (click)="toggleFavorite(prompt)"
+              >★</button>
+            </div>
+
+            <h2>{{ prompt.title }}</h2>
+            <p class="body">{{ prompt.body }}</p>
+
+            @if (prompt.tags.length) {
+              <div class="tags">
+                @for (t of prompt.tags; track t.id) {
+                  <button class="chip" type="button" (click)="setTag(t.name)">#{{ t.name }}</button>
+                }
+              </div>
+            }
+
+            <div class="card-foot">
+              <span class="muted small">#{{ prompt.id }} · {{ prompt.updated_at + 'Z' | date: 'MMM d, HH:mm' }}</span>
+              <div class="actions">
+                <button class="btn ghost small" type="button" (click)="openEdit(prompt)">Edit</button>
+                <button class="btn danger small" type="button" (click)="remove(prompt)">Delete</button>
+              </div>
+            </div>
+          </li>
+        } @empty {
+          @if (hasFilters()) {
+            <li class="empty">No prompts match these filters.</li>
+          }
+        }
+      </ul>
+    }
+  </main>
+
+</div>
+
+@if (editing() !== null) {
+  <div class="backdrop" (click)="closeEditor()"></div>
+  <form class="drawer" [formGroup]="form" (ngSubmit)="save()">
+    <div class="drawer-head">
+      <h2>{{ editing() === 'new' ? 'New prompt' : 'Edit prompt #' + editing() }}</h2>
+      <span class="muted small">{{ editing() === 'new' ? 'POST /prompts' : 'PATCH /prompts/' + editing() }}</span>
+    </div>
+
+    <label>
+      <span>Title</span>
+      <input type="text" formControlName="title" maxlength="200" />
+    </label>
+    <label>
+      <span>Category</span>
+      <input type="text" formControlName="category" maxlength="50" />
+    </label>
+    <label>
+      <span>Body</span>
+      <textarea formControlName="body" rows="8"></textarea>
+    </label>
+    <label>
+      <span>Tags <em class="muted">comma separated</em></span>
+      <input type="text" formControlName="tags" placeholder="python, ai" />
+    </label>
+    <label class="checkbox">
+      <input type="checkbox" formControlName="is_favorite" />
+      <span>Favorite</span>
+    </label>
+
+    @if (formErrors().length) {
+      <div class="alert">
+        <strong>The API rejected the request:</strong>
+        <ul>
+          @for (msg of formErrors(); track $index) {
+            <li>{{ msg }}</li>
+          }
+        </ul>
+      </div>
+    }
+
+    <div class="drawer-foot">
+      <button class="btn ghost" type="button" (click)="closeEditor()">Cancel</button>
+      <button class="btn primary" type="submit" [disabled]="saving()">
+        {{ saving() ? 'Saving…' : 'Save' }}
+      </button>
+    </div>
+  </form>
+}
