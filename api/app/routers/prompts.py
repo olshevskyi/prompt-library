@@ -26,3 +26,21 @@ def get_prompt(prompt_id: int, db: DbSession):
     if prompt is None:
         raise HTTPException(status_code=404, detail="Prompt not found")
     return prompt
+
+
+@router.patch("/{prompt_id}", response_model=schemas.PromptRead)
+def update_prompt(
+    prompt_id: int, prompt: schemas.PromptUpdate, db: DbSession
+):
+    db_prompt = crud.get_prompt(db, prompt_id)
+    if db_prompt is None:
+        raise HTTPException(status_code=404, detail="Prompt not found")
+    return crud.update_prompt(db, db_prompt, prompt)
+
+
+@router.delete("/{prompt_id}", status_code=204)
+def delete_prompt(prompt_id: int, db: DbSession):
+    db_prompt = crud.get_prompt(db, prompt_id)
+    if db_prompt is None:
+        raise HTTPException(status_code=404, detail="Prompt not found")
+    crud.delete_prompt(db, db_prompt)

@@ -20,3 +20,19 @@ def get_prompts(db: Session) -> list[models.Prompt]:
 def get_prompt(db: Session, prompt_id: int) -> models.Prompt | None:
     result = db.get(models.Prompt, prompt_id)
     return result
+
+
+def update_prompt(
+    db: Session, db_prompt: models.Prompt, prompt: schemas.PromptUpdate
+) -> models.Prompt:
+    changes = prompt.model_dump(exclude_unset=True, exclude_none=True, exclude={"tags"})
+    for field, value in changes.items():
+        setattr(db_prompt, field, value)
+    db.commit()
+    db.refresh(db_prompt)
+    return db_prompt
+
+
+def delete_prompt(db: Session, db_prompt: models.Prompt) -> None:
+    db.delete(db_prompt)
+    db.commit()
