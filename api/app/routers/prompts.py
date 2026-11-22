@@ -16,8 +16,12 @@ def create_prompt(prompt: schemas.PromptCreate, db: DbSession):
 
 
 @router.get("", response_model=list[schemas.PromptRead])
-def get_prompts(db: DbSession):
-    return crud.get_prompts(db)
+def get_prompts(
+    db: DbSession,
+    category: str | None = None,
+    favorite: bool | None = None,
+):
+    return crud.get_prompts(db, category=category, favorite=favorite)
 
 
 @router.get("/{prompt_id}", response_model=schemas.PromptRead)

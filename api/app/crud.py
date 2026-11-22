@@ -12,8 +12,16 @@ def create_prompt(db: Session, prompt: schemas.PromptCreate) -> models.Prompt:
     return db_prompt
 
 
-def get_prompts(db: Session) -> list[models.Prompt]:
+def get_prompts(
+    db: Session,
+    category: str | None = None,
+    favorite: bool | None = None,
+) -> list[models.Prompt]:
     stmt = select(models.Prompt)
+    if category is not None:
+        stmt = stmt.where(models.Prompt.category == category)
+    if favorite is not None:
+        stmt = stmt.where(models.Prompt.is_favorite == favorite)
     return list(db.scalars(stmt).all())
 
 
