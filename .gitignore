@@ -1,0 +1,21 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[oc]
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info
+build/
+wheels/
+
+# SQLite databases created at runtime
+*.db
+
+# Node / Angular
+node_modules/
+ui/dist/
+ui/.angular/
+ui/out-tsc/
