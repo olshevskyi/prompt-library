@@ -20,8 +20,9 @@ def get_prompts(
     db: DbSession,
     category: str | None = None,
     favorite: bool | None = None,
+    tag: str | None = None,
 ):
-    return crud.get_prompts(db, category=category, favorite=favorite)
+    return crud.get_prompts(db, category=category, favorite=favorite, tag=tag)
 
 
 @router.get("/{prompt_id}", response_model=schemas.PromptRead)
