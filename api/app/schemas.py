@@ -23,8 +23,15 @@ class PromptUpdate(BaseModel):
     is_favorite: bool | None = None
 
 
+class TagRead(BaseModel):
+    id: int
+    name: str
+    model_config = ConfigDict(from_attributes=True)
+
+
 class PromptRead(PromptBase):
     id: int
     created_at: datetime
     updated_at: datetime
+    tags: list[TagRead] = []
     model_config = ConfigDict(from_attributes=True)
